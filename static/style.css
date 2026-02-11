@@ -1,0 +1,4 @@
+.container { max-width: 800px; margin: 0 auto; padding: 24px; }
+.user-list { list-style: none; padding: 0; }
+.user-entry { margin: 10px 0; }
+.btn { display: inline-block; padding: 8px 12px; text-decoration: none; border: 1px solid #ccc; border-radius: 8px; }
