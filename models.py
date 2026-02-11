@@ -11,6 +11,9 @@ class User(db.Model):
     # Relationship to movies.
     movies = db.relationship("Movie", backref="user", cascade="all, delete-orphan")
 
+    def __repr__(self) -> str:
+        return f"User(id={self.id}, name='{self.name}')"
+
 class Movie(db.Model):
     __tablename__ = "movies"
 
@@ -22,3 +25,9 @@ class Movie(db.Model):
 
     # Foreign Key.
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    def __repr__(self) -> str:
+        return (
+            f"Movie(id={self.id}, name='{self.name}', director='{self.director}', "
+            f"year={self.year}, user_id={self.user_id})"
+        )
