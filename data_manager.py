@@ -1,23 +1,27 @@
+from sqlalchemy.exc import SQLAlchemyError
 from models import db, User, Movie
 
 class DataManager:
     """
-    Handeles all database CRUD operations for Users and Movies.
+    Handles all database CRUD operations for Users and Movies.
     This class acts as the data access layer of the application.
     It encapsulates all interactions with the SQLAlchemy models.
     """
 
-    def create_user(self, name: str) -> User:
+    def create_user(self, name: str) -> User | None:
         """
         Create and persist a new user in the database.
         :param name: Name of the user to create.
         :return: The newly created User object.
         """
-        new_user = User(name=name)
-        db.session.add(new_user)
-        db.session.commit()
-        return new_user
-
+        try:
+            new_user = User(name=name)
+            db.session.add(new_user)
+            db.session.commit()
+            return new_user
+        except SQLAlchemyError:
+            db.session.rollback()
+            return None
 
     def get_users(self) -> list[User]:
         """
@@ -43,7 +47,7 @@ class DataManager:
         )
 
 
-    def add_movie(self, movie: Movie) -> Movie:
+    def add_movie(self, movie: Movie) -> Movie | None:
         """
         Add a new movie to the database.
 
@@ -52,9 +56,13 @@ class DataManager:
         :param movie: Movie instance to persist.
         :return: The saved Movie object.
         """
-        db.session.add(movie)
-        db.session.commit()
-        return movie
+        try:
+            db.session.add(movie)
+            db.session.commit()
+            return movie
+        except SQLAlchemyError:
+            db.session.rollback()
+            return None
 
 
     def update_movie(
@@ -88,8 +96,12 @@ class DataManager:
         if new_poster_url is not None:
             movie.poster_url = new_poster_url
 
-        db.session.commit()
-        return movie
+        try:
+            db.session.commit()
+            return movie
+        except SQLAlchemyError:
+            db.session.rollback()
+            return None
 
     def delete_movie(self, movie_id: int) -> bool:
         """
@@ -102,7 +114,10 @@ class DataManager:
         if movie is None:
             return False
 
-        db.session.delete(movie)
-        db.session.commit()
-        return True
-
+        try:
+            db.session.delete(movie)
+            db.session.commit()
+            return True
+        except SQLAlchemyError:
+            db.session.rollback()
+            return False
